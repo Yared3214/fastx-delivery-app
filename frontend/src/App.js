@@ -20,22 +20,26 @@ import { Superscript } from 'lucide-react';
 import authStore from './store/auth.store';
 import UpdateRestaurant from './pages/UpdateRestaurant';
 import AboutUsPage from './pages/AboutUsPage';
+import { useState } from 'react';
 
 function App() {
+  const [pathUrl, setPathUrl] = useState('');
   return (
     <div className="App">
       <Router>
-        <Navbar />
-        <MainContent />
+      {pathUrl !== "/dashboard" && <Navbar />}
+        <MainContent pathUrl={pathUrl} setPathUrl={setPathUrl}/>
       </Router>
     </div>
   );
 }
 
 // Component to handle conditional rendering of Footer
-function MainContent() {
+function MainContent({pathUrl, setPathUrl}) {
   const location = useLocation();
   const { userData } = authStore();
+
+  setPathUrl(location.pathname);
 
   const isAdmin = userData && userData.user.role === 'admin';
   const isSuperAdmin = userData && userData.user.role === 'super-admin';

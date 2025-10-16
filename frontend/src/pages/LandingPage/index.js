@@ -68,6 +68,7 @@ const LandingPage = () => {
                             fastX - your gateway to a world of culinary delights, delivered swiftly to your doorstep.
                         </p>
                         <div className="flex flex-col md:flex-row justify-center md:justify-start gap-2 my-6">
+                            <Link to="/login">
                             <motion.button
                                 className='primary'
                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -76,6 +77,8 @@ const LandingPage = () => {
                             >
                                 Order Now
                             </motion.button>
+                            </Link>
+                            <Link to="/login">
                             <motion.button
                                 className='secondary'
                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -84,6 +87,7 @@ const LandingPage = () => {
                             >
                                 Learn More
                             </motion.button>
+                            </Link>
                         </div>
                     </motion.div>
 

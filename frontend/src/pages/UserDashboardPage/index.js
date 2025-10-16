@@ -1,117 +1,49 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { createTheme } from '@mui/material/styles';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import { LogOut, MapPinHouse } from 'lucide-react';
-import fastXLogo from '../../assets/fastX-logo.png';
-import { Button, Popover } from '@mui/material';
-import UserProfile from '../../components/userProfile';
-import orderStore from '../../store/order.store';
-import { useEffect } from 'react';
+import { useEffect, useState } from "react";
+import { LayoutDashboard, ShoppingCart, MapPin, User, LogOut, Menu } from "lucide-react";
+import { motion } from "framer-motion";
+import fastX_logo from '../../assets/fastX-logo.png';
+import orderStore from "../../store/order.store";
+import { Button, Popover } from "@mui/material";
+import { PackageOpen, ShoppingBag } from "lucide-react";
 import authStore from '../../store/auth.store';
+import { useNavigate } from "react-router-dom";
+import UserProfile from '../../components/userProfile';
 
+function LogoutButton() {
+  const navigate = useNavigate();
 
-const NAVIGATION = [
-  {
-    segment: 'dashboard',
-    title: 'Dashboard',
-    icon: <DashboardIcon />,
-  },
-  {
-    segment: 'orders',
-    title: 'My Orders',
-    icon: <ShoppingCartIcon />,
-  },
-  {
-    segment: 'address',
-    title: 'Saved Address',
-    icon: <MapPinHouse />,
-  },
-  {
-    segment: 'account',
-    title: 'Account Details',
-    icon: <AccountBoxIcon />,
-  },
-];
+  const logoutHandler = () => {
+    authStore.getState().clearUserData();
+    navigate("/");
+  };
 
-// Simplified theme with one background color
-const customTheme = createTheme({
-  palette: {
-    background: {
-      default: '#F9F9FE', // Light background
-      paper: '#A40C0C',   // Paper color for light theme
-    },
-    text: {
-      primary: '#000000',  // Primary text color for light mode
-      secondary: '#555555', // Secondary text color for light mode
-    },
-    action: {
-      active: '#ffffff',   // Default icon color (black for light mode)
-      hover: '#a72828',    // Icon color on hover (lighter gray)
-      selected: '#FF6347', // Icon color when selected (e.g., a red-orange like Tomato color)
-      disabled: '#BDBDBD', // Disabled icon color (gray)
-    },
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 600,
-      lg: 1200,
-      xl: 1536,
-    },
-  },
-});
+  return (
+    <div className="p-4 border-t border-red-800">
+          <button className="flex items-center gap-3 w-full px-4 py-2 bg-red-900 hover:bg-red-800 rounded-lg"
+          onClick={logoutHandler}>
+            <LogOut size={18} /> Logout
+          </button>
+        </div>
+  );
+}
 
-
-
-function DemoPageContent({ pathname }) {
+export default function Dashboard() {
+  const [active, setActive] = useState("Dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { myOrders, getMyOrders } = orderStore();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null)
 
   const { userData } = authStore();
   const token = userData?.tokens?.access?.token || null;
 
-  const { myOrders, getMyOrders } = orderStore();
 
-
-  console.log("my -------orders", myOrders);
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
 
   useEffect(() => {
     getMyOrders(token);
   }, [getMyOrders, token]);
-
-  const [selectedOrder, setSelectedOrder] = React.useState(null)
-  console.log("selected order", selectedOrder)
-
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const handleClick = (event, order) => {
-    console.log('ooooooooooooorder', order)
-    setAnchorEl(event.currentTarget);
-    setSelectedOrder(order)
-  };
-
-  const logoutHandler = () => {
-    console.log("logging out")
-    authStore.getState().clearUserData();
-  };
-
-
-
-  const handleClose = () => {
-    setAnchorEl(null);
-    setSelectedOrder(null)
-
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
 
   const formatDateToReadable = (isoDateString) => {
     const date = new Date(isoDateString);
@@ -123,24 +55,119 @@ function DemoPageContent({ pathname }) {
     return date.toLocaleDateString('en-US', options);
   };
 
+  const handleClick = (event, order) => {
+    console.log('ooooooooooooorder', order)
+    setAnchorEl(event.currentTarget);
+    setSelectedOrder(order)
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setSelectedOrder(null)
+
+  };
+
+  const menuItems = [
+    { name: "Dashboard", icon: LayoutDashboard },
+    { name: "My Orders", icon: ShoppingCart },
+    { name: "Account Details", icon: User },
+  ];
 
   return (
-    <Box sx={{ py: 4, px: 3 }}>
-      {pathname === '/dashboard' ? (
-        <Typography>
-          <div>Dashboard content for dashboard</div>
-          <div class="mt-8">
-            <button class="py-2 primary text-white rounded-lg focus:outline-none" onClick={logoutHandler}>
-              Logout
-            </button>
+    <div className="flex min-h-screen bg-gradient-to-br from-[#330000] to-[#550000] text-white font-sans">
+      {/* Sidebar */}
+      <div
+        className={`${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        } fixed md:static z-20 w-64 bg-[#a10000] transition-transform duration-300 flex flex-col`}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-red-800">
+          <div className="flex items-center gap-2">
+            <a href="/">
+              <img
+               src={fastX_logo}
+               alt="fastX logoX"
+               className="w-32 h-auto md:w-40"
+               />
+            </a>
           </div>
-        </Typography>
-      ) : pathname === '/orders' ? (
-        <Typography>
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold">My Orders</h2>
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {myOrders?.map((order, index) => (
+          <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
+            ✕
+          </button>
+        </div>
+
+        <nav className="flex-1 mt-4 space-y-1">
+          {menuItems.map(({ name, icon: Icon }) => (
+            <motion.button
+              key={name}
+              whileHover={{ scale: 1.05 }}
+              className={`flex items-center gap-3 w-full px-5 py-3 text-left transition-all ${
+                active === name ? "bg-red-700 font-semibold" : "hover:bg-red-800"
+              }`}
+              onClick={() => setActive(name)}
+            >
+              <Icon size={20} />
+              {name}
+            </motion.button>
+          ))}
+        </nav>
+
+        <LogoutButton />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6 md:p-10 relative">
+        <button
+          className="md:hidden absolute top-4 left-4"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <Menu size={24} />
+        </button>
+
+        {active === "Dashboard" && 
+          <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mt-10"
+        >
+          <h2 className="text-3xl font-bold mb-3">{active}</h2>
+          <p className="text-gray-300 mb-6">
+            Here is your <span className="text-red-400">{active}</span> summary and recent activity.
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((card) => (
+              <div
+                key={card}
+                className="p-6 bg-[#220000] rounded-2xl shadow-lg border border-red-800 hover:shadow-red-900/40 transition-shadow"
+              >
+                <h3 className="text-lg font-semibold mb-2">Card Title {card}</h3>
+                <p className="text-sm text-gray-400">
+                  This section shows insights or data related to your food deliveries, orders, and more.
+                </p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+        }
+
+        {active === "My Orders" && 
+          <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mt-10"
+        >
+          <h2 className="text-3xl font-bold mb-3">{active}</h2>
+          <p className="text-gray-300 mb-6">
+            Here is your <span className="text-red-400">{active}</span> summary and recent activity.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {myOrders.length !== 0 ? myOrders?.map((order, index) => (
                 <div key={index} className="p-4 border border-gray-300 rounded-lg shadow-sm">
                   <h3 className="text-lg font-semibold">{order.restaurantName}</h3>
                   <p className="text-gray-600">Date: {formatDateToReadable(order.createdAt)}</p>
@@ -199,98 +226,56 @@ function DemoPageContent({ pathname }) {
                     </button>
                   </div>
                 </div>
-              ))}
+              )) : 
+              <div className="flex flex-col items-center justify-center text-center bg-[#220000] text-white rounded-2xl border border-red-800 shadow-lg p-10 max-w-md mx-auto mt-20">
+      <div className="bg-red-900/30 p-6 rounded-full mb-6">
+        <PackageOpen size={60} className="text-red-400" />
+      </div>
+
+      <h2 className="text-2xl font-semibold mb-2">No Orders Yet</h2>
+      <p className="text-gray-400 mb-6">
+        Looks like you haven’t placed any orders yet.  
+        Explore delicious meals and order your first dish today!
+      </p>
+
+      <button
+        onClick={() => (window.location.href = "/menu")}
+        className="flex items-center gap-2 bg-red-700 hover:bg-red-600 px-6 py-3 rounded-full text-white font-medium transition-all"
+      >
+        <ShoppingBag size={18} />
+        Order Now
+      </button>
+    </div>
+              }
             </div>
-          </div>
-        </Typography>
-      ) : pathname === '/account' ? (
-        <Typography>
+        </motion.div>
+        }
+
+
+
+        {active === "Account Details" && 
+          <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mt-10"
+        >
+          <h2 className="text-3xl font-bold mb-3">{active}</h2>
+          <p className="text-gray-300 mb-6">
+            Here is your <span className="text-red-400">{active}</span> summary and recent activity.
+          </p>
+
           <div className='pt-10 pb-7'>
             <div className="max-w-3xl mx-auto p-6 py-10 bg-white shadow-md rounded-lg">
               <h1 className="text-2xl text-[#A40C0C] tes font-bold mb-4">Account Details</h1>
               <UserProfile />
             </div>
           </div>
-        </Typography>
-      ) : (
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold">Saved Addresses</h2>
-          <div className="mt-4">
-            {/* {user?.savedAddresses.map((address, index) => (
-              <div key={index} className="p-4 border border-gray-300 rounded-lg shadow-sm mb-4">
-                <h3 className="text-lg font-semibold">{address.label}</h3>
-                <p className="text-gray-600">{address.address}</p>
-                <button className="bg-gray-500 text-white py-1 px-4 rounded-lg hover:bg-gray-600 mt-2">
-                  Edit Address
-                </button>
-              </div>
-            ))} */}
-            <button className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600">
-              Add New Address
-            </button>
-          </div>
-        </div>
-      )}
-    </Box>
-  );
-}
-
-DemoPageContent.propTypes = {
-  pathname: PropTypes.string.isRequired,
-};
-
-function DashboardLayoutBranding(props) {
-  const { window } = props;
-
-  const [pathname, setPathname] = React.useState('/dashboard');
-
-  const router = React.useMemo(() => {
-    return {
-      pathname,
-      searchParams: new URLSearchParams(),
-      navigate: (path) => setPathname(String(path)),
-    };
-  }, [pathname]);
-
-  const demoWindow = window !== undefined ? window() : undefined;
-
-  return (
-    <AppProvider
-      navigation={NAVIGATION}
-      branding={{
-        // Make the logo a clickable link to the landing page
-        logo: (
-          <a href="/" aria-label="Home">
-            <img src={fastXLogo} alt="MUI logo" />
-          </a>
-        ),
-        // Change the color of the title
-        title: <span className="text-white font-bold">fastX</span>,
-      }}
-      router={router}
-      theme={customTheme} // Single color background theme
-      window={demoWindow}
-    >
-      <DashboardLayout slotProps={{
-        toolbarAccount: {
-          localeText: {
-            signOutLabel: 'Logout'
-          },
-          slotProps: {
-            signInButton: <LogOut />
-          }
+        </motion.div>
         }
-      }}>
-        <div>
-          <DemoPageContent pathname={pathname} />
-        </div>
-      </DashboardLayout>
-    </AppProvider>
+        
+      </div>
+    </div>
   );
 }
-
-DashboardLayoutBranding.propTypes = {
-  window: PropTypes.func,
-};
-
-export default DashboardLayoutBranding;
