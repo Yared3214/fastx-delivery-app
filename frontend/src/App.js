@@ -27,7 +27,7 @@ function App() {
   return (
     <div className="App">
       <Router>
-      {pathUrl !== "/dashboard" && <Navbar />}
+      {(pathUrl !== "/dashboard" && pathUrl !== "/super-admin") && <Navbar />}
         <MainContent pathUrl={pathUrl} setPathUrl={setPathUrl}/>
       </Router>
     </div>
