@@ -8,7 +8,6 @@ import Footer from './components/footer';
 import AllRestaurantsPage from './pages/AllRestaurantsPage';
 import ResetPassword from './components/resetPassword';
 import RestaurantDetail from './pages/RestaurantDetail';
-import CreateRestaurantPage from './pages/CreateRestaurantPage';
 import CreateMenu from './pages/CreateMenuItems';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
@@ -16,7 +15,6 @@ import UserDashboardPage from './pages/UserDashboardPage';
 import AdminPage from './pages/AdminPage';
 import SuperAdminPage from './pages/SuperAdminPage'
 import UpdateMenuItems from './pages/UpdateMenuItems';
-import { Superscript } from 'lucide-react';
 import authStore from './store/auth.store';
 import UpdateRestaurant from './pages/UpdateRestaurant';
 import AboutUsPage from './pages/AboutUsPage';
@@ -27,15 +25,20 @@ function App() {
   return (
     <div className="App">
       <Router>
-      {(pathUrl !== "/dashboard" && pathUrl !== "/super-admin") && <Navbar />}
-        <MainContent pathUrl={pathUrl} setPathUrl={setPathUrl}/>
+      {!(
+  pathUrl.startsWith("/dashboard") ||
+  pathUrl.startsWith("/super-admin") ||
+  pathUrl.startsWith("/admin")
+) && <Navbar />}
+
+        <MainContent setPathUrl={setPathUrl}/>
       </Router>
     </div>
   );
 }
 
 // Component to handle conditional rendering of Footer
-function MainContent({pathUrl, setPathUrl}) {
+function MainContent({setPathUrl}) {
   const location = useLocation();
   const { userData } = authStore();
 

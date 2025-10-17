@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LayoutDashboard, ShoppingCart, User, LogOut, Menu, Building2, Package, Store, UserPlus } from "lucide-react";
+import { LogOut, Menu, Building2, Package, Store, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import fastX_logo from '../../assets/fastX-logo.png';
 import orderStore from "../../store/order.store";
