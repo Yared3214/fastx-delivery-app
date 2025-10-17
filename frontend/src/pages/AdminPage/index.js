@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { LogOut, Menu, Package, Plus} from "lucide-react";
+import { useEffect, useState } from "react";
+import { LayoutDashboard, LogOut, Menu, Utensils} from "lucide-react";
 import { motion } from "framer-motion";
 import fastX_logo from '../../assets/fastX-logo.png';
 import useAdminMenuStore from '../../admin/menu.store';
@@ -86,8 +86,8 @@ const deleteMenuItem = async (menuItemId) => {
 };
 
   const menuItems_ = [
-    { name: "Overview", icon: Package },
-    { name: "Menu Items", icon: Plus },
+    { name: "Overview", icon: LayoutDashboard },
+    { name: "Menu Items", icon: Utensils },
   ];
 
   return (
