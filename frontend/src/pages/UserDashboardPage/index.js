@@ -8,6 +8,7 @@ import { PackageOpen, ShoppingBag } from "lucide-react";
 import authStore from '../../store/auth.store';
 import { useNavigate } from "react-router-dom";
 import UserProfile from '../../components/userProfile';
+import CustomerDashboard from "../../components/customer-dashboard";
 
 function LogoutButton() {
   const navigate = useNavigate();
@@ -132,24 +133,7 @@ export default function Dashboard() {
           transition={{ duration: 0.4 }}
           className="mt-10"
         >
-          <h2 className="text-3xl font-bold mb-3">{active}</h2>
-          <p className="text-gray-300 mb-6">
-            Here is your <span className="text-red-400">{active}</span> summary and recent activity.
-          </p>
-
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {[1, 2, 3].map((card) => (
-              <div
-                key={card}
-                className="p-6 bg-[#220000] rounded-2xl shadow-lg border border-red-800 hover:shadow-red-900/40 transition-shadow"
-              >
-                <h3 className="text-lg font-semibold mb-2">Card Title {card}</h3>
-                <p className="text-sm text-gray-400">
-                  This section shows insights or data related to your food deliveries, orders, and more.
-                </p>
-              </div>
-            ))}
-          </div>
+          <CustomerDashboard />
         </motion.div>
         }
 
