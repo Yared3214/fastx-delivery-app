@@ -1,127 +1,155 @@
-import { Box, createTheme, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { ChartNoAxesGantt, Pencil, ChevronDown } from 'lucide-react';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import fastXLogo from '../../assets/fastX-logo.png';
-import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import useAdminRestaurantStore from '../../admin/restaurant.store';
+import { useEffect, useState } from "react";
+import { LayoutDashboard, LogOut, Menu, Utensils} from "lucide-react";
+import { motion } from "framer-motion";
+import fastX_logo from '../../assets/fastX-logo.png';
 import useAdminMenuStore from '../../admin/menu.store';
+import useAdminRestaurantStore from '../../admin/restaurant.store';
 import authStore from '../../store/auth.store';
-import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import axios from "axios";
+import { Link } from 'react-router-dom';
 
-const NAVIGATION = [
-    {
-        segment: 'overview',
-        title: 'Overview',
-        icon: <ChartNoAxesGantt />,
-    },
-    {
-        segment: 'menu',
-        title: 'Menu Items',
-        icon: <Pencil />,
-    }
-];
+function LogoutButton() {
+  const navigate = useNavigate();
 
-const customTheme = createTheme({
-    palette: {
-        background: {
-            default: '#F9F9FE',
-            paper: '#A40C0C',
-        },
-        text: {
-            primary: '#000000',
-            secondary: '#555555',
-        },
-        action: {
-            active: '#ffffff',
-            hover: '#a72828',
-            selected: '#FF6347',
-            disabled: '#BDBDBD',
-        },
-    },
-    breakpoints: {
-        values: {
-            xs: 0,
-            sm: 600,
-            md: 600,
-            lg: 1200,
-            xl: 1536,
-        },
-    },
-});
+  const logoutHandler = () => {
+    authStore.getState().clearUserData();
+    navigate("/");
+  };
 
-function DemoPageContent({ pathname }) {
-    const { restaurantData, fetchRestaurantData } = useAdminRestaurantStore((state) => ({
-        restaurantData: state.restaurantData,
-        fetchRestaurantData: state.fetchRestaurantData,
-    }));
+  return (
+    <div className="p-4 border-t border-red-800">
+          <button className="flex items-center gap-3 w-full px-4 py-2 bg-red-900 hover:bg-red-800 rounded-lg"
+          onClick={logoutHandler}>
+            <LogOut size={18} /> Logout
+          </button>
+        </div>
+  );
+}
 
-    const { menuItems, fetchAllMenuItems, loading, error, notFound } = useAdminMenuStore((state) => ({
-        menuItems: state.menuItems,
-        loading: state.loading,
-        error: state.error,
-        notFound: state.notFound,
-        fetchAllMenuItems: state.fetchAllMenuItems,
-    }));
 
-    const { userData } = authStore();
-    const token = userData?.tokens?.access?.token || null;
+export default function Dashboard() {
+  const [active, setActive] = useState("Overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const [menuItemsState, setMenuItems] = useState(menuItems);
+  const { restaurantData, fetchRestaurantData } = useAdminRestaurantStore((state) => ({
+    restaurantData: state.restaurantData,
+    fetchRestaurantData: state.fetchRestaurantData,
+}));
 
-    console.log("menuItemssssssssssss", menuItemsState);
+  const { menuItems, fetchAllMenuItems, loading, error, notFound } = useAdminMenuStore((state) => ({
+    menuItems: state.menuItems,
+    loading: state.loading,
+    error: state.error,
+    notFound: state.notFound,
+    fetchAllMenuItems: state.fetchAllMenuItems,
+}));
 
-    // Fetch the restaurant data on component mount
+const { userData } = authStore();
+const token = userData?.tokens?.access?.token || null;
+
+const [menuItemsState, setMenuItems] = useState(menuItems);
+
+// Fetch the restaurant data on component mount
+useEffect(() => {
+    fetchRestaurantData(token);
+}, [token, fetchRestaurantData]);
+
+// Fetch menu items when navigating to the menu section
     useEffect(() => {
-        fetchRestaurantData(token);
-    }, [token, fetchRestaurantData]);
-
-    // Fetch menu items when navigating to the menu section
-    useEffect(() => {
-        if (pathname === '/menu') {
+        if (active === 'Menu Items') {
             fetchAllMenuItems(token);
         }
-    }, [pathname, token, fetchAllMenuItems]);
+    }, [active, token, fetchAllMenuItems]);
 
     useEffect(() => {
         setMenuItems(menuItems); // Sync local state with store state
     }, [menuItems]);
 
-    //logout handler
+const deleteMenuItem = async (menuItemId) => {
+    try {
+        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/menu/delete/${menuItemId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
-    const logoutHandler = () => {
-        authStore.getState().clearUserData();
-    };
-
-    const deleteMenuItem = async (menuItemId) => {
-        try {
-            const response = await axios.delete(`${process.env.REACT_APP_API_URL}/menu/delete/${menuItemId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (response.status === 200) {
-                const updatedMenuItems = menuItemsState.filter((menu) => menu._id !== menuItemId);
-                setMenuItems(updatedMenuItems);
-                console.log('Menu item deleted successfully');
-            }
-        } catch (error) {
-            console.error('Error deleting menu item:', error);
+        if (response.status === 200) {
+            const updatedMenuItems = menuItemsState.filter((menu) => menu._id !== menuItemId);
+            setMenuItems(updatedMenuItems);
+            console.log('Menu item deleted successfully');
         }
-    };
+    } catch (error) {
+        console.error('Error deleting menu item:', error);
+    }
+};
 
+  const menuItems_ = [
+    { name: "Overview", icon: LayoutDashboard },
+    { name: "Menu Items", icon: Utensils },
+  ];
 
+  return (
+    <div className="flex min-h-screen bg-gradient-to-br from-[#330000] to-[#550000] text-white font-sans">
+      {/* Sidebar */}
+      <div
+        className={`${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        } fixed md:static z-20 w-64 bg-[#a10000] transition-transform duration-300 flex flex-col`}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-red-800">
+          <div className="flex items-center gap-2">
+            <a href="/">
+              <img
+               src={fastX_logo}
+               alt="fastX logoX"
+               className="w-32 h-auto md:w-40"
+               />
+            </a>
+          </div>
+          <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
+            ✕
+          </button>
+        </div>
 
-    
-    return (
-        <Box sx={{ py: 4, px: 3 }}>
-            {pathname === '/overview' ? (
-                <Typography>
-                    <div>
+        <nav className="flex-1 mt-4 space-y-1">
+          {menuItems_.map(({ name, icon: Icon }) => (
+            <motion.button
+              key={name}
+              whileHover={{ scale: 1.05 }}
+              className={`flex items-center gap-3 w-full px-5 py-3 text-left transition-all ${
+                active === name ? "bg-red-700 font-semibold" : "hover:bg-red-800"
+              }`}
+              onClick={() => setActive(name)}
+            >
+              <Icon size={20} />
+              {name}
+            </motion.button>
+          ))}
+        </nav>
+
+        <LogoutButton />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6 md:p-10 relative">
+        <button
+          className="md:hidden absolute top-4 left-4"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <Menu size={24} />
+        </button>
+
+        {active === "Overview" && 
+          <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mt-10"
+        >
+          <div>
                         <h1 className="text-4xl font-bold mb-6">Overview</h1>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div className="bg-[#3b1f1b] p-6 rounded-lg shadow-md">
@@ -138,15 +166,20 @@ function DemoPageContent({ pathname }) {
                                 <p className="mt-2">"Loved the food!" - Emily</p>
                             </div>
                         </div>
-                        <div class="mt-8">
-                            <button class="py-2 primary text-white rounded-lg focus:outline-none" onClick={logoutHandler}>
-                                Logout
-                            </button>
-                        </div>
                     </div>
-                </Typography>
-            ) : pathname === '/menu' ? (
-                <div>
+
+        </motion.div>
+        }
+
+        {active === "Menu Items" && 
+          <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mt-10"
+        >
+          <div>
                     <div className="border rounded-lg">
                         {loading ? (
                             <p>Loading menu items...</p>
@@ -201,55 +234,10 @@ function DemoPageContent({ pathname }) {
                         </Link>
                     </div>
                 </div>
-            ) : null}
-        </Box>
-    );
+        </motion.div>
+        }
+        
+      </div>
+    </div>
+  );
 }
-
-DemoPageContent.propTypes = {
-    pathname: PropTypes.string.isRequired,
-};
-
-function DashboardLayoutBranding(props) {
-    const { window } = props;
-    const [pathname, setPathname] = useState('/overview');
-
-    const router = React.useMemo(() => {
-        return {
-            pathname,
-            searchParams: new URLSearchParams(),
-            navigate: (path) => setPathname(String(path)),
-        };
-    }, [pathname]);
-
-    const demoWindow = window !== undefined ? window() : undefined;
-
-    return (
-        <AppProvider
-            navigation={NAVIGATION}
-            branding={{
-                logo: (
-                    <a href="/" aria-label="Home">
-                        <img src={fastXLogo} alt="MUI logo" />
-                    </a>
-                ),
-                title: <span className="text-white font-bold">fastX</span>,
-            }}
-            router={router}
-            theme={customTheme}
-            window={demoWindow}
-        >
-            <DashboardLayout>
-                <div>
-                    <DemoPageContent pathname={pathname} />
-                </div>
-            </DashboardLayout>
-        </AppProvider>
-    );
-}
-
-DashboardLayoutBranding.propTypes = {
-    window: PropTypes.func,
-};
-
-export default DashboardLayoutBranding;
