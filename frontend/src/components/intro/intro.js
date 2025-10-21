@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import burgerbliss from '../../pages/RestaurantDetail/assets/burger-bliss.png'; // Default image
 import star from '../../pages/RestaurantDetail/assets/star.png';
 import { Mail, MapPin, PhoneOutgoing } from 'lucide-react';
-import { IoLocationOutline } from "react-icons/io5";
+// import { IoLocationOutline } from "react-icons/io5";
 
 function Intro({ restaurant }) {
 
@@ -62,7 +62,7 @@ function Intro({ restaurant }) {
                     className="absolute top-2 right-2 flex items-center bg-white bg-opacity-75 p-1 rounded-full cursor-pointer"
                     onClick={handleViewOnMapClick}
                 >
-                    <IoLocationOutline />
+                    {/* <IoLocationOutline /> */}
                     <span className="text-sm text-gray-700">View on Map</span>
                 </div>
             </div>

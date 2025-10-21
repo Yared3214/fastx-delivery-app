@@ -3,8 +3,8 @@ import axios from 'axios';
 
 
 const orderStore = create((set, get) => ({
-    allOrders: {},
-    myOrders: {},
+    allOrders: [],
+    myOrders: [],
     order: {},
     loading: false,
     error: null,
