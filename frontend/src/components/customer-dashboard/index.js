@@ -6,6 +6,7 @@ export default function CustomerDashboard() {
     { id: "#FX12344", date: "Oct 14", status: "Cancelled", total: "$0.00" },
     { id: "#FX12343", date: "Oct 13", status: "Delivered", total: "$45.00" },
   ];
+  
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">

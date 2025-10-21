@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { UserPlus, Mail, Phone, Lock } from "lucide-react";
+import useAddAdmin from "../../hooks/useAddAdmin"; // 👈 custom hook (similar to useLogin)
 
-function AddAdminUser({ onSubmit }) {
+function AddAdminUser() {
+  const { addAdmin, error, isLoading, SnackbarComponent } = useAddAdmin();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -10,27 +13,36 @@ function AddAdminUser({ onSubmit }) {
     confirmPassword: "",
   });
 
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
 
+  // handle input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  // handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // local validation
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setLocalError("Passwords do not match");
       return;
     }
 
-    setError("");
-    if (onSubmit) onSubmit(formData);
+    setLocalError("");
+
+    try {
+      await addAdmin(formData); // send full data to the hook
+    } catch (err) {
+      console.error("Add Admin error:", err);
+    }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 py-10">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md border border-gray-200">
+      <div className="bg-white text-gray-800 shadow-xl rounded-2xl p-8 w-full max-w-md border border-gray-200">
         {/* Header */}
         <div className="flex items-center justify-center mb-6">
           <div className="bg-red-100 p-3 rounded-full mr-3">
@@ -126,16 +138,28 @@ function AddAdminUser({ onSubmit }) {
           </div>
 
           {/* Error Message */}
-          {error && <p className="text-red-600 text-sm text-center mt-2">{error}</p>}
+          {(localError || error) && (
+            <p className="text-red-600 text-sm text-center mt-2">
+              {localError || error}
+            </p>
+          )}
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg mt-4 transition"
+            disabled={isLoading}
+            className={`w-full font-medium py-3 rounded-lg mt-4 transition ${
+              isLoading
+                ? "bg-red-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700 text-white"
+            }`}
           >
-            Create Admin
+            {isLoading ? "Creating..." : "Create Admin"}
           </button>
         </form>
+
+        {/* Snackbar Feedback */}
+        {SnackbarComponent}
       </div>
     </div>
   );
