@@ -10,7 +10,6 @@ const useRegister = () => {
     const navigate = useNavigate();
 
     const register = async (fullName, email, phoneNumber, password) => {
-        console.log('All the form values', "fullName", fullName, "email", email, "phoneNumber", phoneNumber, "password", password);
 
         const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -26,13 +25,11 @@ const useRegister = () => {
                 setTimeout(() => {
                     navigate('/login'); // Navigate to the login page after showing the toast
                 }, 2000); // Adjust the delay as needed
-                console.log('data', response.data);
             } else {
                 setError(`Unexpected response status: ${response.status}`);
             }
 
         } catch (error) {
-            console.error('Registration failed:', error);
             setError(error.response?.data?.message || error.message);
         } finally {
             setIsLoading(false);

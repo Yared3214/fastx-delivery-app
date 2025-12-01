@@ -29,7 +29,6 @@ const useCheckout = () => {
                 }
             );
 
-            console.log("respose", response.data)
 
 
             if (response.status === 200) {

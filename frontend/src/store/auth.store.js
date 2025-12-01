@@ -29,21 +29,16 @@ const authStore = create((set, get) => ({
         try {
             return cookieValue ? JSON.parse(cookieValue) : null;
         } catch (e) {
-            console.error('Error parsing userData cookie:', e);
             return null;
         }
     })(),
     setUserData: (userData) => {
-        console.log('cookie-dara', userData)
         set({ userData });
         setCookie('userData', JSON.stringify(userData), 7);
-        console.log('User Data:', userData);
     },
     clearUserData: () => {
-        console.log('Clearing user data');
         set({ userData: null });
         setCookie('userData', '', -1); // Set the cookie to expire immediately
-        console.log('User Data:', null)
     },
     updateUserDataToken: (newToken) => {
         set((state) => ({
@@ -53,7 +48,6 @@ const authStore = create((set, get) => ({
             }
         }));
         setCookie('userData', JSON.stringify(get().userData), 7);
-        console.log('User Data:', get().userData);
     },
 }));
 

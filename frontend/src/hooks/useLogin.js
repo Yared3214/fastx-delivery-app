@@ -11,10 +11,9 @@ const useLogin = () => {
 
 
     const login = async (email, password) => {
-        console.log('All the form values', "email: ", email, "password: ", password);
 
         const apiUrl = process.env.REACT_APP_API_URL;
-        console.log('api url', apiUrl);
+        
         setIsLoading(true);
         try {
             const response = await axios.post(apiUrl + "/auth/login", {
@@ -27,14 +26,11 @@ const useLogin = () => {
                 setError(null);
                 setOpen(true);
                 setUserData(userData);
-                console.log('user-data', userData);
             } else {
                 setError(`Unexpected response status: ${response.status}`);
             }
 
         } catch (error) {
-            console.error('Login failed:', error);
-
             // Check if the error response status is 429
             if (error.response?.status === 429) {
                 setError("Too Many Requests. Please try again later.");

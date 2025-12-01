@@ -12,10 +12,8 @@ const useAddAdmin = () => {
   const { userData } = authStore();
 
   const addAdmin = async (formData) => {
-    console.log("Admin form data:", formData);
 
     const apiUrl = process.env.REACT_APP_API_URL;
-    console.log("API URL:", apiUrl);
 
     setIsLoading(true);
     setError(null);
@@ -29,7 +27,6 @@ const useAddAdmin = () => {
         throw new Error("Authorization token not found. Please log in again.");
       }
 
-      console.log("form dattaaa", formData, "token --", token)
       // ✅ make API request
       const response = await axios.post(
         `${apiUrl}/users/create-admin`,
@@ -45,12 +42,10 @@ const useAddAdmin = () => {
       if (response.status === 201) {
         setOpen(true);
         setError(null);
-        console.log("Admin created:", response.data);
       } else {
         setError(`Unexpected response status: ${response.status}`);
       }
     } catch (err) {
-      console.error("Create admin failed:", err);
       setError(
         err.response?.data?.message ||
         err.message ||

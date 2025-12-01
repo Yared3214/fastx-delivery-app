@@ -20,14 +20,7 @@ const useCreateMenuItems = () => {
         price,
         image,
     }) => {
-        console.log('All the form values', {
-            name,
-            restaurantEmail,
-            description,
-            category,
-            price,
-            image,
-        });
+      
 
         const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -52,12 +45,10 @@ const useCreateMenuItems = () => {
             if (response.status === 201) {
                 setError(null);
                 setOpen(true);
-                console.log('Restaurant created successfully:', response.data);
             } else {
                 setError(`Unexpected response status: ${response.status}`);
             }
         } catch (error) {
-            console.error('Error creating restaurant:', error);
 
             setOpen(true);
             if (error.response?.status === 429) {

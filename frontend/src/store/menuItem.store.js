@@ -16,7 +16,6 @@ const useMenuStore = create((set) => ({
 
     // Combined action to fetch both restaurant details and menu items
     fetchRestaurantAndMenuItems: async (restID) => {
-        console.log("restaurant ID", restID);
 
         set({ loading: true, error: null, notFound: false });
 

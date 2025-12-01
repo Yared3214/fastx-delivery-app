@@ -24,18 +24,7 @@ const useCreateRestaurant = () => {
         location,
         image,
     }) => {
-        console.log('All the form values', {
-            name,
-            email,
-            cuisine_types,
-            description,
-            address,
-            working_days,
-            phone_number,
-            operating_hours,
-            location,
-            image,
-        });
+     
 
         const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -64,12 +53,10 @@ const useCreateRestaurant = () => {
             if (response.status === 201) {
                 setError(null);
                 setOpen(true);
-                console.log('Restaurant created successfully:', response.data);
             } else {
                 setError(`Unexpected response status: ${response.status}`);
             }
         } catch (error) {
-            console.error('Error creating restaurant:', error);
 
             setOpen(true);
             if (error.response?.status === 429) {

@@ -20,7 +20,6 @@ const useRestaurantStore = create((set) => ({
         try {
             // Fetch restaurants from the API
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/restaurants?${filters}`);
-            console.log('Total restaurants:', response.data.data);
 
             // Check if the response status is successful
             if (response.status === 200) {
@@ -34,7 +33,6 @@ const useRestaurantStore = create((set) => ({
 
 
         } catch (error) {
-            console.error('Error fetching restaurants:', error);
             set({ error: error.message, loading: false, notFound: false }); // Set error state if fetching fails
         }
     },
@@ -49,7 +47,6 @@ const useRestaurantStore = create((set) => ({
 
             // Check if the response is successful
             if (restaurantResponse.status === 200) {
-                console.log('Successfully fetched restaurant data ', restaurantResponse.data);
                 set({
                     restaurant: restaurantResponse.data,
                     loading: false,
